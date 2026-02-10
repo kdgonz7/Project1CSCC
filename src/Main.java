@@ -1,131 +1,169 @@
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Scanner;
+ArrayList<TodoListItem> items;
+Scanner scanner = new Scanner(System.in);
+String[] priorities = {"No/Low", "Low-Medium", "Medium", "Medium-High", "High"};
 
-class Main {
-    ArrayList<TodoListItem> items;
+
+void main() {
+    LinkedHashMap<Integer, MenuOption> menuOptions = new LinkedHashMap<>();
+
+    menuOptions.put(0, new MenuOption(() -> {
+        System.exit(0);
+        return null;
+    }, "Exit."));
+    menuOptions.put(1, new MenuOption(this::addTodoItemPrompt, "Add Todo List Item"));
+    menuOptions.put(2, new MenuOption(this::removeTodoItemPrompt, "Remove Todo List Item"));
+    menuOptions.put(3, new MenuOption(this::updateDescriptionPrompt, "Update Todo List Item Description"));
+    menuOptions.put(4, new MenuOption(() -> displayAllItemsWithIndexes(true), "Display All Todo List Items"));
+    menuOptions.put(5, new MenuOption(this::completeTaskPrompt, "Complete a Task"));
+    menuOptions.put(6, new MenuOption(this::displayItemsWithPriority, "Display Items with a given priority"));
     Scanner scanner = new Scanner(System.in);
 
-
-    public Void displayAllItemsWithIndexes(boolean pause) {
-        if (items == null || items.isEmpty()) {
-            System.out.println("No todo list items found.");
-            return null;
+    while (true) {
+        IO.println("Menu Options:");
+        for (var entry : menuOptions.entrySet()) {
+            IO.println("(" + entry.getKey() + "): " + entry.getValue().toString());
         }
+        IO.println("Select an option:");
 
-        for (int i = 0; i < items.size(); i++) {
-            System.out.println("(" + i + 1 + "): " + items.get(i).toString());
-        }
+        var input = scanner.nextLine();
+        var selectedOption = Integer.parseInt(input);
 
-        if (pause) {
-            System.out.println("Press Enter to continue...");
-            scanner.nextLine();
-        }
-
-        return null;
-    }
-
-    void main() {
-        LinkedHashMap<Integer, MenuOption> menuOptions = new LinkedHashMap<>();
-
-        menuOptions.put(0, new MenuOption(() -> {
-            System.exit(0);
-            return null;
-        }, "Exit."));
-
-        menuOptions.put(1, new MenuOption(this::addTodoItemPrompt, "Add Todo List Item"));
-        menuOptions.put(2, new MenuOption(this::removeTodoItemPrompt, "Remove Todo List Item"));
-        menuOptions.put(3, new MenuOption(this::updateDescriptionPrompt, "Update Todo List Item Description"));
-        menuOptions.put(4, new MenuOption(() -> displayAllItemsWithIndexes(true), "Display All Todo List Items"));
-        menuOptions.put(5, new MenuOption(this::completeTaskPrompt, "Complete a Task"));
-
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            System.out.println("Menu Options:");
-            for (var entry : menuOptions.entrySet()) {
-                System.out.println("(" + entry.getKey() + "): " + entry.getValue().toString());
+        if (menuOptions.containsKey(selectedOption)) {
+            try {
+                menuOptions.get(selectedOption).callable.call();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            System.out.println("Select an option:");
-
-            var input = scanner.nextLine();
-            var selectedOption = Integer.parseInt(input);
-
-            if (menuOptions.containsKey(selectedOption)) {
-                try {
-                    menuOptions.get(selectedOption).callable.call();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                System.out.println("Invalid option. Please try again.");
-            }
+        } else {
+            IO.println("Invalid option. Please try again.");
         }
     }
+}
 
-    public Void addTodoItemPrompt() {
-        System.out.println("What is the description of the new todo list item?");
-        var desc = scanner.nextLine();
-
-        if (items == null) {
-            items = new ArrayList<>();
-        }
-
-        items.add(new TodoListItem(desc));
-
+private Void displayItemsWithPriority() {
+    if (items == null || items.isEmpty()) {
+        IO.println("No todo list items found.");
         return null;
     }
 
-    public Void removeTodoItemPrompt() {
-        if (items == null || items.isEmpty()) {
-            System.out.println("No todo list items to remove.");
-            return null;
+    IO.println("What priority level would you like to filter by? (0-5, 0 = no/low, 5 = high)");
+
+    var priorityAsked = Integer.parseInt(scanner.nextLine());
+    boolean itemFound = false;
+
+    items.sort((a, b) -> Integer.compare(b.priority, a.priority)); // Sort by priority (high to low)
+
+    for (int i = 0; i < items.size(); i++) {
+        var todoItem = items.get(i);
+        if (todoItem.getPriority() != priorityAsked) {
+            continue;
         }
-        displayAllItemsWithIndexes(false);
-
-        System.out.println("Which item would you like to remove?");
-
-        var removeIndexStr = scanner.nextLine();
-        var removeIndex = Integer.parseInt(removeIndexStr);
-
-        while (removeIndex < 1 || removeIndex > items.size()) {
-            System.out.println("Invalid index. Please enter a number between 1 and " + items.size() + ":");
-            removeIndexStr = scanner.nextLine();
-            removeIndex = Integer.parseInt(removeIndexStr);
-        }
-
-        items.remove(removeIndex - 1);
-
-        return null;
-
+        itemFound = true;
+        IO.println("(" + priorities[todoItem.getPriority() == 0 ? todoItem.getPriority() : todoItem.getPriority() - 1] + " Priority) (" + i + 1 + "): " + todoItem);
     }
 
-    private Void updateDescriptionPrompt() {
-        displayAllItemsWithIndexes(false);
+    if (!itemFound) {
+        IO.println("No items found with the specified priority.");
+    }
 
-        System.out.println("Which description would you like to update?");
+    IO.println("Press Enter to continue...");
+    scanner.nextLine();
 
-        var updateIndexStr = scanner.nextLine();
-        var updateIndex = Integer.parseInt(updateIndexStr) - 1;
+    return null;
+}
 
-        if (items != null && updateIndex - 1 >= 0 && updateIndex - 1 < items.size()) {
-            System.out.println("Enter the new description:");
-            items.get(updateIndex - 1).description = scanner.nextLine();
-        }
+private Void displayAllItemsWithIndexes(boolean pause) {
+    if (items == null || items.isEmpty()) {
+        IO.println("No todo list items found.");
         return null;
     }
 
-    private Void completeTaskPrompt() {
-        displayAllItemsWithIndexes(false);
-        System.out.println("Which task would you like to complete?");
+    items.sort((a, b) -> Integer.compare(b.priority, a.priority)); // Sort by priority (high to low)
 
-        var updateIndexStr = scanner.nextLine();
-        var updateIndex = Integer.parseInt(updateIndexStr);
+    for (int i = 0; i < items.size(); i++) {
+        var todoItem = items.get(i);
+        IO.println("(" + priorities[todoItem.getPriority() == 0 ? todoItem.getPriority() : todoItem.getPriority() - 1] + " Priority) (" + i + 1 + "): " + todoItem);
+    }
 
-        if (items != null && updateIndex - 1 >= 0 && updateIndex - 1 < items.size()) {
-            items.get(updateIndex - 1).markAsCompleted();
-        }
+    if (pause) {
+        IO.println("Press Enter to continue...");
+        scanner.nextLine();
+    }
 
+    return null;
+}
+
+private Void addTodoItemPrompt() {
+    IO.println("What is the title of the new todo list item?");
+    var title = scanner.nextLine();
+
+    IO.println("What is the description of the new todo list item?");
+    var desc = scanner.nextLine();
+
+    if (items == null) {
+        items = new ArrayList<>();
+    }
+
+    IO.println("What is the priority of this item? (0-5, 0 = no/low, 5 = high)");
+    var priorityStr = scanner.nextLine();
+    var priority = Integer.parseInt(priorityStr);
+
+    items.add(new TodoListItem(title, desc, priority));
+
+    return null;
+}
+
+private Void removeTodoItemPrompt() {
+    if (items == null || items.isEmpty()) {
+        IO.println("No todo list items to remove.");
         return null;
     }
+
+    displayAllItemsWithIndexes(false);
+
+    IO.println("Which item would you like to remove?");
+
+    var removeIndexStr = scanner.nextLine();
+    var removeIndex = Integer.parseInt(removeIndexStr);
+
+    while (removeIndex < 1 || removeIndex > items.size()) {
+        IO.println("Invalid index. Please enter a number between 1 and " + items.size() + ":");
+        removeIndexStr = scanner.nextLine();
+        removeIndex = Integer.parseInt(removeIndexStr);
+    }
+
+    items.remove(removeIndex - 1);
+
+    return null;
+
+}
+
+private Void updateDescriptionPrompt() {
+    displayAllItemsWithIndexes(false);
+
+    IO.println("Which description would you like to update?");
+
+    var updateIndexStr = scanner.nextLine();
+    var updateIndex = Integer.parseInt(updateIndexStr) - 1;
+
+    if (items != null && updateIndex - 1 >= 0 && updateIndex - 1 < items.size()) {
+        IO.println("Enter the new description:");
+        items.get(updateIndex - 1).description = scanner.nextLine();
+    }
+
+    return null;
+}
+
+private Void completeTaskPrompt() {
+    displayAllItemsWithIndexes(false);
+    IO.println("Which task would you like to complete?");
+
+    var updateIndexStr = scanner.nextLine();
+    var updateIndex = Integer.parseInt(updateIndexStr);
+
+    if (items != null && updateIndex - 1 >= 0 && updateIndex - 1 < items.size()) {
+        items.get(updateIndex - 1).markAsCompleted();
+    }
+
+    return null;
 }
