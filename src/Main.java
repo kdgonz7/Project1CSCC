@@ -51,7 +51,7 @@ private Void displayItemsWithPriority() {
     var priorityAsked = Integer.parseInt(scanner.nextLine());
     boolean itemFound = false;
 
-    items.sort((a, b) -> Integer.compare(b.priority, a.priority)); // Sort by priority (high to low)
+    items.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority())); // Sort by priority (high to low)
 
     for (int i = 0; i < items.size(); i++) {
         var todoItem = items.get(i);
@@ -78,7 +78,7 @@ private Void displayAllItemsWithIndexes(boolean pause) {
         return null;
     }
 
-    items.sort((a, b) -> Integer.compare(b.priority, a.priority)); // Sort by priority (high to low)
+    items.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority())); // Sort by priority (high to low)
 
     for (int i = 0; i < items.size(); i++) {
         var todoItem = items.get(i);
@@ -148,7 +148,7 @@ private Void updateDescriptionPrompt() {
 
     if (items != null && updateIndex - 1 >= 0 && updateIndex - 1 < items.size()) {
         IO.println("Enter the new description:");
-        items.get(updateIndex - 1).description = scanner.nextLine();
+        items.get(updateIndex - 1).setDescription(scanner.nextLine());
     }
 
     return null;
