@@ -1,7 +1,8 @@
-ArrayList<TodoListItem> items;
+final boolean DEBUG = false;
+
+TodoListItems items;
 Scanner scanner = new Scanner(System.in);
 String[] priorities = {"No/Low", "Low-Medium", "Medium", "Medium-High", "High"};
-
 
 void main() {
     LinkedHashMap<Integer, MenuOption> menuOptions = new LinkedHashMap<>();
@@ -16,6 +17,7 @@ void main() {
     menuOptions.put(4, new MenuOption(() -> displayAllItemsWithIndexes(true), "Display All Todo List Items"));
     menuOptions.put(5, new MenuOption(this::completeTaskPrompt, "Complete a Task"));
     menuOptions.put(6, new MenuOption(this::displayItemsWithPriority, "Display Items with a given priority"));
+
     Scanner scanner = new Scanner(System.in);
 
     while (true) {
@@ -32,7 +34,11 @@ void main() {
             try {
                 menuOptions.get(selectedOption).callable.call();
             } catch (Exception e) {
-                e.printStackTrace();
+                if (DEBUG)
+                    e.printStackTrace();
+                else {
+                    IO.println("An error occurred while executing the selected option. Please try again.");
+                }
             }
         } else {
             IO.println("Invalid option. Please try again.");
@@ -51,13 +57,13 @@ private Void displayItemsWithPriority() {
     var priorityAsked = Integer.parseInt(scanner.nextLine());
     boolean itemFound = false;
 
-    items.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority())); // Sort by priority (high to low)
-
+    items.sortByPriority();
     for (int i = 0; i < items.size(); i++) {
         var todoItem = items.get(i);
         if (todoItem.getPriority() != priorityAsked) {
             continue;
         }
+
         itemFound = true;
         IO.println("(" + priorities[todoItem.getPriority() == 0 ? todoItem.getPriority() : todoItem.getPriority() - 1] + " Priority) (" + i + 1 + "): " + todoItem);
     }
@@ -71,18 +77,17 @@ private Void displayItemsWithPriority() {
 
     return null;
 }
-
 private Void displayAllItemsWithIndexes(boolean pause) {
     if (items == null || items.isEmpty()) {
         IO.println("No todo list items found.");
         return null;
     }
 
-    items.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority())); // Sort by priority (high to low)
+    items.sortByPriority();
 
     for (int i = 0; i < items.size(); i++) {
         var todoItem = items.get(i);
-        IO.println("(" + priorities[todoItem.getPriority() == 0 ? todoItem.getPriority() : todoItem.getPriority() - 1] + " Priority) (" + i + 1 + "): " + todoItem);
+        IO.println("(" + priorities[todoItem.getPriority() == 0 ? todoItem.getPriority() : todoItem.getPriority() - 1] + " Priority) (" + (i + 1) + "): " + todoItem);
     }
 
     if (pause) {
@@ -92,7 +97,6 @@ private Void displayAllItemsWithIndexes(boolean pause) {
 
     return null;
 }
-
 private Void addTodoItemPrompt() {
     IO.println("What is the title of the new todo list item?");
     var title = scanner.nextLine();
@@ -101,18 +105,24 @@ private Void addTodoItemPrompt() {
     var desc = scanner.nextLine();
 
     if (items == null) {
-        items = new ArrayList<>();
+        items = new TodoListItems();
     }
 
     IO.println("What is the priority of this item? (0-5, 0 = no/low, 5 = high)");
-    var priorityStr = scanner.nextLine();
-    var priority = Integer.parseInt(priorityStr);
 
+    var priorityStr = scanner.nextLine();
+    var isNumber = Pattern.matches("\\d+", priorityStr);
+
+    if (!isNumber) {
+        IO.println("Invalid input. Priority must be a number between 0 and 5. Setting priority to 0 (no/low) by default.");
+        priorityStr = "0";
+    }
+
+    var priority = Integer.parseInt(priorityStr);
     items.add(new TodoListItem(title, desc, priority));
 
     return null;
 }
-
 private Void removeTodoItemPrompt() {
     if (items == null || items.isEmpty()) {
         IO.println("No todo list items to remove.");
@@ -137,7 +147,6 @@ private Void removeTodoItemPrompt() {
     return null;
 
 }
-
 private Void updateDescriptionPrompt() {
     displayAllItemsWithIndexes(false);
 
@@ -146,14 +155,14 @@ private Void updateDescriptionPrompt() {
     var updateIndexStr = scanner.nextLine();
     var updateIndex = Integer.parseInt(updateIndexStr) - 1;
 
-    if (items != null && updateIndex - 1 >= 0 && updateIndex - 1 < items.size()) {
+
+    if (items != null && updateIndex >= 0 && updateIndex < items.size()) {
         IO.println("Enter the new description:");
-        items.get(updateIndex - 1).setDescription(scanner.nextLine());
+        items.get(updateIndex).setDescription(scanner.nextLine());
     }
 
     return null;
 }
-
 private Void completeTaskPrompt() {
     displayAllItemsWithIndexes(false);
     IO.println("Which task would you like to complete?");
