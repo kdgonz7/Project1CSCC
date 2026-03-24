@@ -1,4 +1,4 @@
-public class TodoListItem {
+public class TodoListItem implements Comparable<TodoListItem> {
     private String title;
     private String description;
     private boolean isCompleted;
@@ -63,4 +63,12 @@ public class TodoListItem {
     }
 
 
+    @Override
+    public int compareTo(TodoListItem o) {
+        if (this.title.equals(o.title) && this.priority == o.priority) {
+            return 0;
+        }
+
+        return Integer.compare(this.priority, o.priority);
+    }
 }
