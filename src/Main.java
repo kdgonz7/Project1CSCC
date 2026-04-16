@@ -22,9 +22,11 @@ void main() {
 
     while (true) {
         IO.println("Menu Options:");
+
         for (var entry : menuOptions.entrySet()) {
             IO.println("(" + entry.getKey() + "): " + entry.getValue().toString());
         }
+
         IO.println("Select an option:");
 
         var input = scanner.nextLine();
@@ -34,8 +36,9 @@ void main() {
             try {
                 menuOptions.get(selectedOption).callable.call();
             } catch (Exception e) {
-                if (DEBUG)
-                    e.printStackTrace();
+                if (DEBUG) {
+                    IO.println("An error occurred with message: " + e.getMessage());
+                }
                 else {
                     IO.println("An error occurred while executing the selected option. Please try again.");
                 }
@@ -57,7 +60,6 @@ private Void displayItemsWithPriority() {
     var priorityAsked = Integer.parseInt(scanner.nextLine());
     boolean itemFound = false;
 
-    items.sortByPriority();
     for (int i = 0; i < items.size(); i++) {
         var todoItem = items.get(i);
         if (todoItem.getPriority() != priorityAsked) {
@@ -82,8 +84,6 @@ private Void displayAllItemsWithIndexes(boolean pause) {
         IO.println("No todo list items found.");
         return null;
     }
-
-    items.sortByPriority();
 
     for (int i = 0; i < items.size(); i++) {
         var todoItem = items.get(i);
