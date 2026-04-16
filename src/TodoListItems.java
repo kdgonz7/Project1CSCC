@@ -24,6 +24,7 @@ public class TodoListItems implements Iterable<TodoListItem> {
         if (index >= 0 && index < items.size()) {
             return items.get(index);
         }
+
         return null;
     }
 
