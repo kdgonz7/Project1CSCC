@@ -11,7 +11,7 @@ public class TodoListItems implements Iterable<TodoListItem> {
 
     public void add(TodoListItem item) {
         items.add(item);
-        Collections.sort(items);
+        Collections.sort(items); // Sort by natural order (priority) after adding a new item
     }
 
     public void remove(int index) {
