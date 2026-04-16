@@ -1,3 +1,4 @@
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -10,6 +11,7 @@ public class TodoListItems implements Iterable<TodoListItem> {
 
     public void add(TodoListItem item) {
         items.add(item);
+        Collections.sort(items);
     }
 
     public void remove(int index) {
@@ -38,7 +40,4 @@ public class TodoListItems implements Iterable<TodoListItem> {
         return items.isEmpty();
     }
 
-    public void sortByPriority() {
-        items.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority())); // Sort by priority (high to low)
-    }
 }
