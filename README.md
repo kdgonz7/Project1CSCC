@@ -1,3 +1,3 @@
-# Project 2 - Modified Todo Manager
+# Project 4 - Manager with saves
 
-The next iteration contains priorities, titles, and descriptions, with options to filter and sort by priority.
+This edit just allows saving.
