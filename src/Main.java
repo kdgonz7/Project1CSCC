@@ -20,7 +20,6 @@ void main() throws IOException {
 
     menuOptions.put(0, new MenuOption(() -> {
         m.writerWithDefaultPrettyPrinter().writeValue(tasksFile, items);
-
         System.exit(0);
         return null;
     }, "Exit."));
