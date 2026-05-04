@@ -1,9 +1,11 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 public class TodoListItems implements Iterable<TodoListItem> {
-    private final LinkedList<TodoListItem> items;
+    private LinkedList<TodoListItem> items;
 
     public TodoListItems() {
         this.items = new LinkedList<>();
@@ -28,6 +30,14 @@ public class TodoListItems implements Iterable<TodoListItem> {
         return null;
     }
 
+    public LinkedList<TodoListItem> getItems() {
+        return items;
+    }
+
+    public void setItems(LinkedList<TodoListItem> items) {
+        this.items = items;
+    }
+
     public int size() {
         return items.size();
     }
@@ -37,6 +47,7 @@ public class TodoListItems implements Iterable<TodoListItem> {
         return items.iterator();
     }
 
+    @JsonIgnore
     public boolean isEmpty() {
         return items.isEmpty();
     }

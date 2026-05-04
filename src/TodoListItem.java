@@ -4,6 +4,9 @@ public class TodoListItem implements Comparable<TodoListItem> {
     private boolean isCompleted;
     private int priority = 0; // 0 = no/low, 5 = high
 
+    public TodoListItem() {
+    }
+
     public TodoListItem(String description) {
         this.description = description;
         this.isCompleted = false;

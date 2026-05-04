@@ -1,13 +1,26 @@
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 final boolean DEBUG = false;
 
 TodoListItems items;
 Scanner scanner = new Scanner(System.in);
 String[] priorities = {"No/Low", "Low-Medium", "Medium", "Medium-High", "High"};
 
-void main() {
+void main() throws IOException {
+    ObjectMapper m = new ObjectMapper();
+    File tasksFile = new File("tasks.json");
+
+    if (tasksFile.exists()) {
+        items = m.readValue(tasksFile, new TypeReference<>() {
+        });
+    }
+
     LinkedHashMap<Integer, MenuOption> menuOptions = new LinkedHashMap<>();
 
     menuOptions.put(0, new MenuOption(() -> {
+        m.writerWithDefaultPrettyPrinter().writeValue(tasksFile, items);
+
         System.exit(0);
         return null;
     }, "Exit."));
